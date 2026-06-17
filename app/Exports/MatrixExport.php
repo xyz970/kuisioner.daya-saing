@@ -93,6 +93,9 @@ class MatrixExport implements FromArray, WithStyles, ShouldAutoSize, WithTitle
         $sheet->getStyle('A6:Z6')->getFont()->setBold(true);
         $sheet->getStyle('A6:A31')->getFont()->setBold(true);
 
+        $sheet->getStyle('A33:O33')->getFont()->setBold(true);
+        $sheet->getStyle('A33:A47')->getFont()->setBold(true);
+
         // 3. Center-align the data columns (B through Z, Rows 6 to 31)
         $sheet->getStyle('B6:Z31')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
