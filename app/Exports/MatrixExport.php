@@ -55,7 +55,7 @@ class MatrixExport implements FromArray, WithStyles, ShouldAutoSize, WithTitle
                 } elseif ($rowIndex > $colIndex) {
                     $row[] = '';  // Lower triangle
                 } else {
-                    $row[] = $value ?? ''; // Input value
+                   $row[] = $value !== null || $value === 0 ? (string) $value : ''; // Input value
                 }
             }
             $exportData[] = $row;
@@ -75,7 +75,7 @@ class MatrixExport implements FromArray, WithStyles, ShouldAutoSize, WithTitle
                 } elseif ($rowIndex > $colIndex) {
                     $row[] = '';  // Lower triangle
                 } else {
-                    $row[] = $value ?? ''; // Input value
+                   $row[] = $value !== null || $value === 0 ? (string) $value : ''; // Input value
                 }
             }
             $exportData[] = $row;
