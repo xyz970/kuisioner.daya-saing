@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuisoner Pengisian Faktor & Aktor Kunci</title>
+    <title>Kuisioner Pengisian Faktor & Aktor Kunci</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .table-wrapper::-webkit-scrollbar { height: 10px; width: 10px; }
@@ -12,8 +12,6 @@
         .table-wrapper::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
         .cell-hover:hover { transform: scale(1.15); z-index: 10; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-        
-        /* Applied consistent cross-browser backdrop filter styling here */
         dialog::backdrop { 
             background: rgba(0, 0, 0, 0.4); 
             backdrop-filter: blur(4px);
@@ -44,10 +42,16 @@
                 @endif
 
                 @if(session('success'))
+                    <script>
+                        localStorage.removeItem('draft_matrix');
+                        localStorage.removeItem('draft_aktorMatrix');
+                    </script>
                     <span class="text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg border border-emerald-200 hidden md:inline-block">
                         {{ session('success') }}
                     </span>
                 @endif
+
+                <span id="save-status" class="text-xs font-medium text-gray-400 italic hidden md:inline-block"></span>
 
                 <button type="button" onclick="openSaveModal()" class="mb-10 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition-colors duration-200 inline-flex items-center gap-2 text-sm">
                     Simpan Hasil
@@ -187,6 +191,18 @@
         // State Arrays
         let matrix = Array(size).fill(null).map(() => Array(size).fill(null));
         let aktorMatrix = Array(aktorSize).fill(null).map(() => Array(aktorSize).fill(null));
+
+        // --- NEW: AUTOSAVE LOAD LOGIC ---
+        // Safely check and load data from local storage if it matches our table dimensions
+        const draftMatrix = JSON.parse(localStorage.getItem('draft_matrix'));
+        const draftAktor = JSON.parse(localStorage.getItem('draft_aktorMatrix'));
+
+        if (draftMatrix && draftMatrix.length === size) {
+            matrix = draftMatrix;
+        }
+        if (draftAktor && draftAktor.length === aktorSize) {
+            aktorMatrix = draftAktor;
+        }
         
         let currentRow = -1; let currentCol = -1;
         let currentAktorRow = -1; let currentAktorCol = -1;
@@ -196,7 +212,16 @@
         const aktorModal = document.getElementById('aktor-input-modal');
         const saveModal = document.getElementById('save-modal');
 
-        // Independent Toggle Functions
+        // --- NEW: AUTOSAVE WRITE LOGIC ---
+        function saveDraft() {
+            localStorage.setItem('draft_matrix', JSON.stringify(matrix));
+            localStorage.setItem('draft_aktorMatrix', JSON.stringify(aktorMatrix));
+            
+            const statusEl = document.getElementById('save-status');
+            statusEl.innerText = "Draft tersimpan otomatis...";
+            setTimeout(() => statusEl.innerText = "", 2000); // Clear message after 2s
+        }
+
         function toggleSidebar() {
             showFullLabels = !showFullLabels;
             renderGrid();
@@ -347,6 +372,7 @@
 
         function setComparisonValue(val) {
             matrix[currentRow][currentCol] = val;
+            saveDraft(); // Automatically save
             modal.close();
             renderGrid();
             checkCompletion(); 
@@ -361,6 +387,7 @@
 
         function setAktorValue(val) {
             aktorMatrix[currentAktorRow][currentAktorCol] = val;
+            saveDraft(); // Automatically save
             aktorModal.close();
             renderAktorGrid();
             checkCompletion();
@@ -449,20 +476,15 @@
             }
         });
 
-        // --- NEW GLOBAL LISTENER: CLICK OUTSIDE MODAL TO CLOSE ---
         window.addEventListener('click', function(event) {
-            // Check if the clicked target is a native HTML dialog element
             if (event.target.tagName === 'DIALOG') {
                 const rect = event.target.getBoundingClientRect();
-                
-                // Track if the cursor click coordinate falls completely outside the dialog box dimensions
                 const clickedOutside = (
                     event.clientX < rect.left ||
                     event.clientX > rect.right ||
                     event.clientY < rect.top ||
                     event.clientY > rect.bottom
                 );
-                
                 if (clickedOutside) {
                     event.target.close();
                 }
