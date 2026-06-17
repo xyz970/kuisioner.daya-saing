@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cross-Impact Matrix Questionnaire</title>
+    <title>Kuisoner Pengisian Faktor & Aktor Kunci</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .table-wrapper::-webkit-scrollbar { height: 10px; width: 10px; }
@@ -12,7 +12,13 @@
         .table-wrapper::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
         .cell-hover:hover { transform: scale(1.15); z-index: 10; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-        dialog::backdrop { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); }
+        
+        /* Applied consistent cross-browser backdrop filter styling here */
+        dialog::backdrop { 
+            background: rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 md:p-6 font-sans text-gray-800">
@@ -55,12 +61,12 @@
         
         <div class="mb-10">
             <h2 class="text-xl md:text-2xl font-bold text-gray-900">Kuisoner Aktor Kunci  <span id="lock-status" class="text-sm text-red-500 font-semibold">Isi Kuisioner Faktor Kunci terlebih dahulu</span></h2>
-           <p class="text-sm text-gray-500 mt-1">Keterangan: </p>
-                <p class="text-sm text-gray-500 mt-1">0 Artinya Tidak Ada Pengaruh </p>
-                <p class="text-sm text-gray-500 mt-1">1 Artinya Memiliki Pengaruh Kecil </p>
-                <p class="text-sm text-gray-500 mt-1">2 Artinya Memiliki Pengaruh Sedang</p>
-                <p class="text-sm text-gray-500 mt-1">3 Artinya Memiliki Pengaruh Besar</p>
-                <p class="text-sm text-gray-500 mt-1">4 Artinya Mempengaruhi Eksistensi Kawasan Industri</p>
+            <p class="text-sm text-gray-500 mt-1">Keterangan: </p>
+            <p class="text-sm text-gray-500 mt-1">0 Artinya Tidak Ada Pengaruh </p>
+            <p class="text-sm text-gray-500 mt-1">1 Artinya Memiliki Pengaruh Kecil </p>
+            <p class="text-sm text-gray-500 mt-1">2 Artinya Memiliki Pengaruh Sedang</p>
+            <p class="text-sm text-gray-500 mt-1">3 Artinya Memiliki Pengaruh Besar</p>
+            <p class="text-sm text-gray-500 mt-1">4 Artinya Mempengaruhi Eksistensi Kawasan Industri</p>
             
             <div id="aktor-section" class="table-wrapper overflow-auto border border-gray-200 rounded-xl shadow-sm bg-white max-h-[60vh] opacity-40 pointer-events-none transition-all duration-500 grayscale w-fit max-w-full">
                 <div id="aktor-matrix-container" class="grid gap-[2px] p-[2px] bg-gray-100 w-max"></div>
@@ -98,30 +104,30 @@
             <input type="hidden" name="key_actor" id="key_actor">
             
             <div class="p-6 border-b border-gray-100">
-                <h3 class="text-xl font-bold text-gray-900 mb-1">Submit Assessment</h3>
-                <p class="text-sm text-gray-500">Please provide your details to save this matrix.</p>
+                <h3 class="text-xl font-bold text-gray-900 mb-1">Kirim Assessmen</h3>
+                <p class="text-sm text-gray-500">Mohon isi data berikut dengan sebenar-benarnya</p>
             </div>
 
             <div class="p-6 space-y-4">
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-                    <input type="text" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="Enter your name">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nama</label>
+                    <input type="text" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="Masukkan nama lengkap Anda">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Job Title</label>
-                    <input type="text" name="job" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="e.g. Project Manager">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Jabatan</label>
+                    <input type="text" name="job" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="cth. Direktur">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Company / Organization</label>
-                    <input type="text" name="company" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="Enter company name">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Perusahaan / Organisasi</label>
+                    <input type="text" name="company" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="Masukkan nama perusahaan / organisasi Anda">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Industrial Park</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Kawasan Industrial</label>
                     <select name="industrial_park" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white">
-                        <option value="" disabled selected>Select an Industrial Park...</option>
+                        <option value="" disabled selected>Pilih Kawasan Industri...</option>
                         <option value="Surabaya Industrial Estate Rungkut (SIER)">Surabaya Industrial Estate Rungkut (SIER)</option>
                         <option value="Pasuruan Industrial Estate Rembang (PIER)">Pasuruan Industrial Estate Rembang (PIER)</option>
                         <option value="Maspion Industrial Estate">Maspion Industrial Estate</option>
@@ -134,10 +140,10 @@
 
             <div class="p-6 bg-gray-50 flex gap-3 justify-end">
                 <button type="button" onclick="document.getElementById('save-modal').close()" class="px-5 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    Cancel
+                    Batal
                 </button>
                 <button type="submit" id="final-submit-btn" class="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg transition-colors pointer-events-none opacity-50">
-                    Confirm & Save
+                    Konfirmasi & Simpan
                 </button>
             </div>
         </form>
@@ -281,7 +287,6 @@
             aktorContainer.style.gridTemplateColumns = `${firstColWidth} repeat(${aktorSize}, 55px)`;
             aktorContainer.style.gridTemplateRows = `55px repeat(${aktorSize}, 55px)`;
 
-            // Independent Corner Button for Matrix 2
             const corner = document.createElement('div');
             corner.className = 'sticky top-0 left-0 z-20 bg-slate-900 text-white flex items-center px-2 font-bold text-sm rounded-sm shadow-md cursor-pointer hover:bg-slate-800 transition-colors select-none';
             if (showAktorFullLabels) {
@@ -436,12 +441,31 @@
 
         window.addEventListener('resize', () => {
             let shouldShowFull = window.innerWidth >= 768;
-            // Reset both to default on resize to prevent broken layouts
             if (shouldShowFull !== showFullLabels || shouldShowFull !== showAktorFullLabels) {
                 showFullLabels = shouldShowFull;
                 showAktorFullLabels = shouldShowFull;
                 renderGrid();
                 renderAktorGrid();
+            }
+        });
+
+        // --- NEW GLOBAL LISTENER: CLICK OUTSIDE MODAL TO CLOSE ---
+        window.addEventListener('click', function(event) {
+            // Check if the clicked target is a native HTML dialog element
+            if (event.target.tagName === 'DIALOG') {
+                const rect = event.target.getBoundingClientRect();
+                
+                // Track if the cursor click coordinate falls completely outside the dialog box dimensions
+                const clickedOutside = (
+                    event.clientX < rect.left ||
+                    event.clientX > rect.right ||
+                    event.clientY < rect.top ||
+                    event.clientY > rect.bottom
+                );
+                
+                if (clickedOutside) {
+                    event.target.close();
+                }
             }
         });
 
