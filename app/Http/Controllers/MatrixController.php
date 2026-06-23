@@ -35,7 +35,7 @@ class MatrixController extends Controller
             'key_actor' => json_decode($request->key_actor, true),
         ]);
 
-        return redirect()->back()->with('success', 'Matrix data successfully saved to the database!');
+        return redirect()->back()->with('success', 'Data berhasil disimpan.');
     }
 
     public function export()
