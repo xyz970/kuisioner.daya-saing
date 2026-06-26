@@ -22,61 +22,114 @@
 <body class="bg-gray-50 min-h-screen p-4 md:p-6 font-sans text-gray-800">
 
     <div class="max-w-[95vw] mx-auto">
-        <div class="flex flex-col md:flex-row justify-between md:items-end gap-4 mb-4">
+        
+        <div class="flex flex-col md:flex-row justify-between md:items-end gap-4 mb-6">
             <div>
-                <h1 class="text-xl md:text-2xl font-bold text-gray-900">Kuisoner Faktor Kunci</h1>
-                <p class="text-sm text-gray-500 mt-1">Keterangan: </p>
-                <p class="text-sm text-gray-500 mt-1">0 Artinya Tidak Ada Hubungan (Non-Existent) </p>
-                <p class="text-sm text-gray-500 mt-1">1 Artinya Hubungan Lemah </p>
-                <p class="text-sm text-gray-500 mt-1">2 Artinya Hubungan Sama-sama Kuat</p>
-                <p class="text-sm text-gray-500 mt-1">3 Artinya Hubungan Kuat</p>
-                <p class="text-sm text-gray-500 mt-1">P Artinya Potential Influence (Tidak Bisa Ditentukan Dengan Kesepakatan)</p>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Assessmen Faktor & Aktor Kunci</h1>
+                <p class="text-sm text-gray-500 mt-1">Silakan ikuti instruksi secara berurutan.</p>
             </div>
             
             <div class="flex flex-wrap items-center gap-3">
-                @if(isset($latestSubmission))
-                    {{-- <a href="{{ route('matrix.export', $latestSubmission->id) }}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition-colors duration-200 inline-flex items-center gap-2 text-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Export Excel
-                    </a> --}}
-                @endif
-
                 @if(session('success'))
                     <script>
                         localStorage.removeItem('draft_matrix');
                         localStorage.removeItem('draft_aktorMatrix');
+                        localStorage.removeItem('draft_identity');
                     </script>
                     <span class="text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg border border-emerald-200 hidden md:inline-block">
                         {{ session('success') }}
                     </span>
                 @endif
-
                 <span id="save-status" class="text-xs font-medium text-gray-400 italic hidden md:inline-block"></span>
+            </div>
+        </div>
 
-                <button type="button" onclick="openSaveModal()" class="mb-10 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition-colors duration-200 inline-flex items-center gap-2 text-sm">
+        <form action="{{ route('matrix.store') }}" method="POST" id="matrixForm">
+            @csrf
+            <input type="hidden" name="key_factor" id="key_factor">
+            <input type="hidden" name="key_actor" id="key_actor">
+
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-10">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-900">1. Data Identitas</h2>
+                    <span id="identity-status" class="text-sm text-red-500 font-semibold bg-red-50 px-3 py-1 rounded-full border border-red-200">Wajib Diisi</span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nama</label>
+                        <input type="text" name="name" id="user_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="Masukkan nama lengkap Anda" oninput="validateIdentity()">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Jabatan</label>
+                        <input type="text" name="job" id="user_job" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="cth. Direktur" oninput="validateIdentity()">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Perusahaan / Organisasi</label>
+                        <input type="text" name="company" id="user_company" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="Masukkan nama perusahaan / organisasi Anda" oninput="validateIdentity()">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Kawasan Industrial</label>
+                        <select name="industrial_park" id="user_park" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white" onchange="validateIdentity()">
+                            <option value="" disabled selected>Pilih Kawasan Industri...</option>
+                            <option value="Surabaya Industrial Estate Rungkut (SIER)">Surabaya Industrial Estate Rungkut (SIER)</option>
+                            {{-- <option value="Pasuruan Industrial Estate Rembang (PIER)">Pasuruan Industrial Estate Rembang (PIER)</option> --}}
+                            <option value="Maspion Industrial Estate">Maspion Industrial Estate</option>
+                            <option value="Sidoarjo Rangkah Industrial Estate (SiRIE)">Sidoarjo Rangkah Industrial Estate (SiRIE)</option>
+                            <option value="Kawasan Industrial Tuban">Kawasan Industrial Tuban</option>
+                            <option value="I-SENTRA Smart Eco Industrial Park (SEIPs) Lamongan">I-SENTRA Smart Eco Industrial Park (SEIPs) Lamongan</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="matrix1-section" class="mb-10 opacity-40 pointer-events-none grayscale transition-all duration-500">
+                <div class="mb-3 flex flex-col md:flex-row md:items-center gap-2">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-900">2. Kuisioner Faktor Kunci</h2>
+                    <span id="m1-lock-status" class="text-sm text-red-500 font-semibold">Lengkapi Data Identitas terlebih dahulu</span>
+                </div>
+                
+                <p class="text-sm text-gray-500 mb-3 leading-relaxed">
+                    <strong>Keterangan:</strong><br>
+                    0 = Tidak Ada Hubungan (Non-Existent) | 1 = Hubungan Lemah | 2 = Hubungan Sama-sama Kuat | 3 = Hubungan Kuat | P = Potential Influence (Tidak Bisa Ditentukan)
+                </p>
+
+                <div class="table-wrapper overflow-auto border border-gray-200 rounded-xl shadow-sm bg-white w-fit max-w-full max-h-[60vh]">
+                    <div id="matrix-container" class="grid gap-[2px] p-[2px] bg-gray-100 w-max"></div>
+                </div>
+            </div>
+            
+            <div id="aktor-section" class="mb-10 opacity-40 pointer-events-none grayscale transition-all duration-500">
+                <div class="mb-3 flex flex-col md:flex-row md:items-center gap-2">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-900">3. Kuisioner Aktor Kunci</h2>
+                    <span id="lock-status" class="text-sm text-red-500 font-semibold">Isi Kuisioner Faktor Kunci terlebih dahulu</span>
+                </div>
+
+                <p class="text-sm text-gray-500 mb-3 leading-relaxed">
+                    <strong>Keterangan:</strong><br>
+                    0 = Tidak Ada Pengaruh | 1 = Pengaruh Kecil | 2 = Pengaruh Sedang | 3 = Pengaruh Besar | 4 = Mempengaruhi Eksistensi Kawasan
+                </p>
+                
+                <div class="table-wrapper overflow-auto border border-gray-200 rounded-xl shadow-sm bg-white max-h-[60vh] w-fit max-w-full">
+                    <div id="aktor-matrix-container" class="grid gap-[2px] p-[2px] bg-gray-100 w-max"></div>
+                </div>
+            </div>
+
+            <div class="mt-8 mb-20 p-6 bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Kirim Assessmen</h3>
+                    <p id="final-status" class="text-sm text-red-500 font-semibold mt-1">Selesaikan seluruh langkah (1, 2, dan 3) untuk mengaktifkan tombol ini.</p>
+                </div>
+                <button type="submit" id="final-submit-btn" class="w-full md:w-auto px-8 py-3 text-sm md:text-base font-semibold text-white bg-indigo-600 rounded-xl transition-all duration-300 pointer-events-none opacity-50 flex justify-center items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     Simpan Hasil
                 </button>
             </div>
-        </div>
 
-        <div class="table-wrapper overflow-auto border border-gray-200 rounded-xl shadow-sm bg-white max-h-[60vh] mb-10">
-            <div id="matrix-container" class="grid gap-[2px] p-[2px] bg-gray-100 w-max"></div>
-        </div>
-        
-        <div class="mb-10">
-            <h2 class="text-xl md:text-2xl font-bold text-gray-900">Kuisoner Aktor Kunci  <span id="lock-status" class="text-sm text-red-500 font-semibold">Isi Kuisioner Faktor Kunci terlebih dahulu</span></h2>
-            <p class="text-sm text-gray-500 mt-1">Keterangan: </p>
-            <p class="text-sm text-gray-500 mt-1">0 Artinya Tidak Ada Pengaruh </p>
-            <p class="text-sm text-gray-500 mt-1">1 Artinya Memiliki Pengaruh Kecil </p>
-            <p class="text-sm text-gray-500 mt-1">2 Artinya Memiliki Pengaruh Sedang</p>
-            <p class="text-sm text-gray-500 mt-1">3 Artinya Memiliki Pengaruh Besar</p>
-            <p class="text-sm text-gray-500 mt-1">4 Artinya Mempengaruhi Eksistensi Kawasan Industri</p>
-            
-            <div id="aktor-section" class="table-wrapper overflow-auto border border-gray-200 rounded-xl shadow-sm bg-white max-h-[60vh] opacity-40 pointer-events-none transition-all duration-500 grayscale w-fit max-w-full">
-                <div id="aktor-matrix-container" class="grid gap-[2px] p-[2px] bg-gray-100 w-max"></div>
-            </div>
-        </div>
-
+        </form>
     </div>
 
     <dialog id="input-modal" class="p-0 rounded-xl shadow-2xl border border-gray-100 max-w-[90vw] md:max-w-sm w-full">
@@ -99,58 +152,6 @@
                 Cancel
             </button>
         </div>
-    </dialog>
-
-    <dialog id="save-modal" class="p-0 rounded-xl shadow-2xl border border-gray-100 max-w-[90vw] md:max-w-md w-full">
-        <form action="{{ route('matrix.store') }}" method="POST" id="matrixForm" class="bg-white rounded-xl overflow-hidden">
-            @csrf
-            <input type="hidden" name="key_factor" id="key_factor">
-            <input type="hidden" name="key_actor" id="key_actor">
-            
-            <div class="p-6 border-b border-gray-100">
-                <h3 class="text-xl font-bold text-gray-900 mb-1">Kirim Assessmen</h3>
-                <p class="text-sm text-gray-500">Mohon isi data berikut dengan sebenar-benarnya</p>
-            </div>
-
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nama</label>
-                    <input type="text" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="Masukkan nama lengkap Anda">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Jabatan</label>
-                    <input type="text" name="job" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="cth. Direktur">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Perusahaan / Organisasi</label>
-                    <input type="text" name="company" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="Masukkan nama perusahaan / organisasi Anda">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Kawasan Industrial</label>
-                    <select name="industrial_park" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white">
-                        <option value="" disabled selected>Pilih Kawasan Industri...</option>
-                        <option value="Surabaya Industrial Estate Rungkut (SIER)">Surabaya Industrial Estate Rungkut (SIER)</option>
-                        <option value="Pasuruan Industrial Estate Rembang (PIER)">Pasuruan Industrial Estate Rembang (PIER)</option>
-                        <option value="Maspion Industrial Estate">Maspion Industrial Estate</option>
-                        <option value="Sidoarjo Rangkah Industrial Estate (SiRIE)">Sidoarjo Rangkah Industrial Estate (SiRIE)</option>
-                        <option value="Kawasan Industrial Tuban">Kawasan Industrial Tuban</option>
-                        <option value="I-SENTRA Smart Eco Industrial Park (SEIPs) Lamongan">I-SENTRA Smart Eco Industrial Park (SEIPs) Lamongan</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="p-6 bg-gray-50 flex gap-3 justify-end">
-                <button type="button" onclick="document.getElementById('save-modal').close()" class="px-5 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    Batal
-                </button>
-                <button type="submit" id="final-submit-btn" class="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg transition-colors pointer-events-none opacity-50">
-                    Konfirmasi & Simpan
-                </button>
-            </div>
-        </form>
     </dialog>
 
     <script>
@@ -184,53 +185,135 @@
         const size = variables.length; 
         const aktorSize = aktorVariables.length;
 
-        // Independent States for Sidebar Toggles
         let showFullLabels = window.innerWidth >= 768; 
         let showAktorFullLabels = window.innerWidth >= 768; 
 
-        // State Arrays
         let matrix = Array(size).fill(null).map(() => Array(size).fill(null));
         let aktorMatrix = Array(aktorSize).fill(null).map(() => Array(aktorSize).fill(null));
 
-        // --- NEW: AUTOSAVE LOAD LOGIC ---
-        // Safely check and load data from local storage if it matches our table dimensions
+        // --- 2. LOAD AUTOSAVES ---
         const draftMatrix = JSON.parse(localStorage.getItem('draft_matrix'));
         const draftAktor = JSON.parse(localStorage.getItem('draft_aktorMatrix'));
+        const draftIdentityRaw = localStorage.getItem('draft_identity');
 
-        if (draftMatrix && draftMatrix.length === size) {
-            matrix = draftMatrix;
-        }
-        if (draftAktor && draftAktor.length === aktorSize) {
-            aktorMatrix = draftAktor;
-        }
+        if (draftMatrix && draftMatrix.length === size) matrix = draftMatrix;
+        if (draftAktor && draftAktor.length === aktorSize) aktorMatrix = draftAktor;
         
+        if (draftIdentityRaw) {
+            const draftId = JSON.parse(draftIdentityRaw);
+            document.getElementById('user_name').value = draftId.name || '';
+            document.getElementById('user_job').value = draftId.job || '';
+            document.getElementById('user_company').value = draftId.company || '';
+            document.getElementById('user_park').value = draftId.park || '';
+        }
+
         let currentRow = -1; let currentCol = -1;
         let currentAktorRow = -1; let currentAktorCol = -1;
 
         const container = document.getElementById('matrix-container');
         const modal = document.getElementById('input-modal');
         const aktorModal = document.getElementById('aktor-input-modal');
-        const saveModal = document.getElementById('save-modal');
 
-        // --- NEW: AUTOSAVE WRITE LOGIC ---
+        // --- 3. AUTOSAVE TRIGGER ---
         function saveDraft() {
             localStorage.setItem('draft_matrix', JSON.stringify(matrix));
             localStorage.setItem('draft_aktorMatrix', JSON.stringify(aktorMatrix));
             
             const statusEl = document.getElementById('save-status');
             statusEl.innerText = "Draft tersimpan otomatis...";
-            setTimeout(() => statusEl.innerText = "", 2000); // Clear message after 2s
+            statusEl.classList.remove('hidden');
+            setTimeout(() => statusEl.classList.add('hidden'), 2000);
         }
 
-        function toggleSidebar() {
-            showFullLabels = !showFullLabels;
-            renderGrid();
+        // --- 4. VALIDATION & CASCADE LOGIC ---
+        function validateIdentity() {
+            checkCompletion();
+            const name = document.getElementById('user_name').value.trim();
+            const job = document.getElementById('user_job').value.trim();
+            const company = document.getElementById('user_company').value.trim();
+            const park = document.getElementById('user_park').value.trim();
+            const identityComplete = name && job && company && park;
+            
+            const idStatus = document.getElementById('identity-status');
+            const m1Section = document.getElementById('matrix1-section');
+            const m1LockStatus = document.getElementById('m1-lock-status');
+
+            if (identityComplete) {
+                // Save identity draft
+                localStorage.setItem('draft_identity', JSON.stringify({name, job, company, park}));
+                
+                // Visual Updates for Matrix 1
+                idStatus.innerText = "Selesai";
+                idStatus.className = "text-sm text-emerald-600 font-semibold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200";
+                
+                m1Section.classList.remove('opacity-40', 'pointer-events-none', 'grayscale');
+                m1LockStatus.innerText = "";
+            } else {
+                idStatus.innerText = "Wajib Diisi";
+                idStatus.className = "text-sm text-red-500 font-semibold bg-red-50 px-3 py-1 rounded-full border border-red-200";
+                
+                m1Section.classList.add('opacity-40', 'pointer-events-none', 'grayscale');
+                m1LockStatus.innerText = "Lengkapi Data Identitas terlebih dahulu";
+            }
         }
 
-        function toggleAktorSidebar() {
-            showAktorFullLabels = !showAktorFullLabels;
-            renderAktorGrid();
+        function checkCompletion() {
+            // Check Identity
+            const name = document.getElementById('user_name').value.trim();
+            const job = document.getElementById('user_job').value.trim();
+            const company = document.getElementById('user_company').value.trim();
+            const park = document.getElementById('user_park').value.trim();
+            const identityComplete = name && job && company && park;
+
+            // Check Matrix 1
+            let m1Complete = true;
+            for(let i=0; i<size; i++) {
+                for(let j=0; j<size; j++) { if(i < j && matrix[i][j] === null) m1Complete = false; }
+            }
+            
+            // Lock/Unlock Matrix 2 Logic
+            const aktorSection = document.getElementById('aktor-section');
+            const lockStatus = document.getElementById('lock-status');
+            
+            if(identityComplete && m1Complete) {
+                aktorSection.classList.remove('opacity-40', 'pointer-events-none', 'grayscale');
+                lockStatus.innerText = "";
+            } else {
+                aktorSection.classList.add('opacity-40', 'pointer-events-none', 'grayscale');
+                lockStatus.innerText = !identityComplete ? "Lengkapi Identitas & Faktor Kunci terlebih dahulu" : "Selesaikan Kuisioner Faktor Kunci terlebih dahulu";
+            }
+
+            // Check Matrix 2
+            let m2Complete = true;
+            for(let i=0; i<aktorSize; i++) {
+                for(let j=0; j<aktorSize; j++) { if(i < j && aktorMatrix[i][j] === null) m2Complete = false; }
+            }
+
+            // Lock/Unlock Bottom Submit Button
+            const btn = document.getElementById('final-submit-btn');
+            const finalStatus = document.getElementById('final-status');
+
+            if (identityComplete && m1Complete && m2Complete) {
+                btn.classList.remove('pointer-events-none', 'opacity-50');
+                btn.classList.add('hover:bg-indigo-700', 'hover:shadow-lg', 'transform', 'hover:-translate-y-0.5');
+                finalStatus.innerText = "Semua data telah diisi. Formulir siap dikirim.";
+                finalStatus.className = "text-sm text-emerald-600 font-semibold mt-1";
+            } else {
+                btn.classList.add('pointer-events-none', 'opacity-50');
+                btn.classList.remove('hover:bg-indigo-700', 'hover:shadow-lg', 'transform', 'hover:-translate-y-0.5');
+                finalStatus.innerText = "Selesaikan seluruh langkah (1, 2, dan 3) untuk mengaktifkan tombol ini.";
+                finalStatus.className = "text-sm text-red-500 font-semibold mt-1";
+            }
         }
+
+        // Handle Submission formatting right before post
+        document.getElementById('matrixForm').addEventListener('submit', function(e) {
+            document.getElementById('key_factor').value = JSON.stringify(matrix);
+            document.getElementById('key_actor').value = JSON.stringify(aktorMatrix);
+        });
+
+        function toggleSidebar() { showFullLabels = !showFullLabels; renderGrid(); }
+        function toggleAktorSidebar() { showAktorFullLabels = !showAktorFullLabels; renderAktorGrid(); }
 
         function getCellClasses(value, isAktor = false) {
             let textSize = isAktor ? "text-sm" : "text-xs";
@@ -246,7 +329,7 @@
             return classes + "bg-white";
         }
 
-        // --- 2. MATRIX 1 LOGIC ---
+        // --- 5. RENDER GRIDS ---
         function renderGrid() {
             container.innerHTML = ''; 
             const firstColWidth = showFullLabels ? '360px' : '50px';
@@ -303,7 +386,6 @@
             }
         }
 
-        // --- 3. MATRIX 2 LOGIC ---
         function renderAktorGrid() {
             const aktorContainer = document.getElementById('aktor-matrix-container');
             aktorContainer.innerHTML = ''; 
@@ -362,17 +444,16 @@
             }
         }
 
-        // --- 4. MODAL INTERACTIONS ---
+        // --- 6. MODALS ---
         function openModal(row, col) {
             currentRow = row; currentCol = col;
             document.getElementById('modal-title').innerText = `${variables[row].code} vs ${variables[col].code}`;
-            document.getElementById('modal-desc').innerHTML = ``;
             modal.showModal();
         }
 
         function setComparisonValue(val) {
             matrix[currentRow][currentCol] = val;
-            saveDraft(); // Automatically save
+            saveDraft();
             modal.close();
             renderGrid();
             checkCompletion(); 
@@ -381,57 +462,20 @@
         function openAktorModal(row, col) {
             currentAktorRow = row; currentAktorCol = col;
             document.getElementById('aktor-modal-title').innerText = `${aktorVariables[row].code} vs ${aktorVariables[col].code}`;
-            document.getElementById('aktor-modal-desc').innerHTML = ``;
             aktorModal.showModal();
         }
 
         function setAktorValue(val) {
             aktorMatrix[currentAktorRow][currentAktorCol] = val;
-            saveDraft(); // Automatically save
+            saveDraft();
             aktorModal.close();
             renderAktorGrid();
             checkCompletion();
         }
 
-        // --- 5. VALIDATION LOGIC ---
-        function checkCompletion() {
-            let m1Complete = true;
-            for(let i=0; i<size; i++) {
-                for(let j=0; j<size; j++) { if(i < j && matrix[i][j] === null) m1Complete = false; }
-            }
-            
-            const section = document.getElementById('aktor-section');
-            const status = document.getElementById('lock-status');
-            
-            if(m1Complete) {
-                section.classList.remove('opacity-40', 'pointer-events-none', 'grayscale');
-                status.innerText = "";
-                status.className = "text-sm text-emerald-600 font-semibold";
-            } else {
-                section.classList.add('opacity-40', 'pointer-events-none', 'grayscale');
-                status.innerText = "Isi Kuisioner Faktor Kunci terlebih dahulu";
-                status.className = "text-sm text-red-500 font-semibold";
-            }
-
-            let m2Complete = true;
-            for(let i=0; i<aktorSize; i++) {
-                for(let j=0; j<aktorSize; j++) { if(i < j && aktorMatrix[i][j] === null) m2Complete = false; }
-            }
-
-            const btn = document.getElementById('final-submit-btn');
-            if (m1Complete && m2Complete) {
-                btn.classList.remove('pointer-events-none', 'opacity-50');
-                btn.classList.add('hover:bg-indigo-700');
-            } else {
-                btn.classList.add('pointer-events-none', 'opacity-50');
-                btn.classList.remove('hover:bg-indigo-700');
-            }
-        }
-
-        // --- 6. INITIALIZATION ---
+        // --- 7. INITIALIZATION ---
         const btnContainer = document.getElementById('button-container');
-        const likertScale = [0, 1, 2, 3, 'P'];
-        likertScale.forEach(val => {
+        [0, 1, 2, 3, 'P'].forEach(val => {
             const btn = document.createElement('button');
             btn.innerText = val;
             let btnClass = "flex-1 min-w-[50px] py-3 text-lg font-bold rounded-lg border transition-all ";
@@ -460,12 +504,6 @@
             aktorBtnContainer.appendChild(btn);
         });
 
-        function openSaveModal() {
-            document.getElementById('key_factor').value = JSON.stringify(matrix);
-            document.getElementById('key_actor').value = JSON.stringify(aktorMatrix);
-            document.getElementById('save-modal').showModal();
-        }
-
         window.addEventListener('resize', () => {
             let shouldShowFull = window.innerWidth >= 768;
             if (shouldShowFull !== showFullLabels || shouldShowFull !== showAktorFullLabels) {
@@ -476,6 +514,7 @@
             }
         });
 
+        // Close dialog when clicking outside
         window.addEventListener('click', function(event) {
             if (event.target.tagName === 'DIALOG') {
                 const rect = event.target.getBoundingClientRect();
@@ -485,15 +524,13 @@
                     event.clientY < rect.top ||
                     event.clientY > rect.bottom
                 );
-                if (clickedOutside) {
-                    event.target.close();
-                }
+                if (clickedOutside) event.target.close();
             }
         });
 
         renderGrid();
         renderAktorGrid();
-        checkCompletion(); 
+        validateIdentity(); // Initial check to lock/unlock states based on cached data
     </script>
 </body>
 </html>
